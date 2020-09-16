@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Julie Taylor](https://up.htmlacademy.ru/javascript/21/user/393173).
-* Наставник: `Неизвестно`.
+* Наставник: `Кто же?`.
 
 ---
 
