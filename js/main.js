@@ -51,7 +51,7 @@ const createComments = () => {
 const createElement = (i) => {
   const feedElement = {
     url: `photos/${urlShuffledArray[i]}.jpg`,
-    description: `Description will be here`,
+    description: `Photo description`,
     likes: getRandomNumber(15, 200),
     comments: createComments()
   };
@@ -92,3 +92,46 @@ const drawFeed = () => {
 };
 
 drawFeed();
+
+// show big picture
+const bigPicture = document.querySelector(`.big-picture`);
+bigPicture.classList.remove(`hidden`);
+const commentContainer = document.querySelector(`.social__comments`);
+const comment = commentContainer.querySelector(`.social__comment`);
+
+const cleanContainer = (container) => {
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+};
+
+const fillBigPicture = (dataFeedElement) => {
+  bigPicture.querySelector(`.big-picture__img img`).src = dataFeedElement.url;
+  bigPicture.querySelector(`.likes-count`).textContent = dataFeedElement.likes;
+  bigPicture.querySelector(`.comments-count`).textContent = dataFeedElement.comments.length;
+  bigPicture.querySelector(`.social__caption`).textContent = dataFeedElement.description;
+
+  let commentFragment = document.createDocumentFragment();
+
+  cleanContainer(commentContainer);
+
+  let commentsArray = dataFeedElement.comments;
+
+  for (let i = 0; i < commentsArray.length; i++) {
+    let newComment = comment.cloneNode(true);
+
+    newComment.classList.add(`new`);
+    newComment.querySelector(`.social__picture`).src = commentsArray[i].avatar;
+    newComment.querySelector(`.social__text`).textContent = commentsArray[i].message;
+
+    commentFragment.appendChild(newComment);
+  }
+
+  commentContainer.appendChild(commentFragment);
+};
+
+fillBigPicture(feed[0]);
+
+document.querySelector(`.social__comment-count`).classList.add(`hidden`);
+document.querySelector(`.comments-loader`).classList.add(`hidden`);
+document.querySelector(`body`).classList.add(`modal-open`);
