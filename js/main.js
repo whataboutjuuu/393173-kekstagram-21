@@ -225,30 +225,6 @@ for (let i = 0; i < effects.length; i++) {
       imgUploadPreview.className = ``;
       effectSlider.classList.add(`hidden`);
     }
-
-
-    // switch (effects[i].id) {
-    //   case `effect-chrome`:
-    //     changeEffect(`chrome`);
-    //     break;
-    //   case `effect-sepia`:
-    //     changeEffect(`sepia`);
-    //     break;
-    //   case `effect-marvin`:
-    //     changeEffect(`marvin`);
-    //     break;
-    //   case `effect-phobos`:
-    //     changeEffect(`phobos`);
-    //     break;
-    //   case `effect-heat`:
-    //     changeEffect(`heat`);
-    //     break;
-    //   default:
-    //     imgUploadPreview.className = ``;
-    //     effectSlider.classList.add(`hidden`);
-    // }
-
-
   });
 }
 
@@ -291,3 +267,65 @@ const changeEffect = (effectName) => {
     doEffect(effectName, filterValue);
   });
 };
+
+// Hashtags
+let hashtags = [];
+const hashtagInput = document.querySelector(`.text__hashtags`);
+const sendButton = document.querySelector(`.img-upload__submit`);
+const HASHTAG_TEMPLATE = /^#[A-Za-z\d]*$/;
+const HASHTAGS_QTY = 5;
+
+const collectHashtags = (elem) => {
+  hashtags = elem.value.trim().toLowerCase().split(` `);
+
+  return hashtags;
+};
+
+hashtagInput.addEventListener(`input`, function (evt) {
+  evt.preventDefault();
+
+  collectHashtags(evt.target);
+
+  let newHashtags;
+
+  if (hashtags.length > HASHTAGS_QTY) {
+    console.log(`нельзя указать больше пяти хэш-тегов`);
+    newHashtags = hashtags.slice(0, HASHTAGS_QTY);
+  }
+
+
+  console.log(newHashtags);
+
+  for (let i = 0; i < newHashtags.length; i++) {
+
+    console.log(newHashtags[i], newHashtags[i].length);
+
+    if (!HASHTAG_TEMPLATE.test(newHashtags[i])) {
+      hashtagInput.setCustomVlidity(`строка после решётки должна состоять из букв и чисел и не может содержать пробелы, спецсимволы (#, @, $ и т. п.), символы пунктуации (тире, дефис, запятая и т. п.), эмодзи и т. д.`);
+    } else if (newHashtags[i].length > 20) {
+      hashtagInput.setCustomVlidity(`максимальная длина одного хэш-тега 20 символов, включая решётку`);
+    } else if (newHashtags[i].length === 1 && newHashtags[i] === `#`) {
+      hashtagInput.setCustomVlidity(`хеш-тег не может состоять только из одной решётки`);
+    } else if (newHashtags.indexOf(newHashtags[i])) {
+      console.log(`truuue`);
+    } else {
+      hashtagInput.setCustomVlidity(``);
+    }
+  }
+
+// hashtagInput.reportValidity();
+
+  console.log(newHashtags);
+
+
+});
+
+const validateHashtags = (hashtagsArray) => {
+
+};
+
+// validation after Upload button pressed
+sendButton.addEventListener(`click`, function () {
+  console.log(`send button pressed`);
+  validateHashtags(hashtags);
+});
