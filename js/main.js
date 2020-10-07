@@ -95,7 +95,7 @@ drawFeed();
 
 // show big picture
 const bigPicture = document.querySelector(`.big-picture`);
-bigPicture.classList.remove(`hidden`);
+// bigPicture.classList.remove(`hidden`);
 const commentContainer = document.querySelector(`.social__comments`);
 const comment = commentContainer.querySelector(`.social__comment`);
 
@@ -132,6 +132,162 @@ const fillBigPicture = (dataFeedElement) => {
 
 fillBigPicture(feed[0]);
 
-document.querySelector(`.social__comment-count`).classList.add(`hidden`);
-document.querySelector(`.comments-loader`).classList.add(`hidden`);
-document.querySelector(`body`).classList.add(`modal-open`);
+// document.querySelector(`.social__comment-count`).classList.add(`hidden`);
+// document.querySelector(`.comments-loader`).classList.add(`hidden`);
+// document.querySelector(`body`).classList.add(`modal-open`);
+
+
+// module 4
+
+// open/close Edit modal
+
+const uploadButton = document.querySelector(`#upload-file`);
+const closeEditing = document.querySelector(`#upload-cancel`);
+const editForm = document.querySelector(`.img-upload__overlay`);
+
+
+const onPopupEscPress = (evt) => {
+  if (evt.key === `Escape`) {
+    evt.preventDefault();
+    closeEditPopup();
+  }
+};
+
+const openEditPopup = () => {
+  editForm.classList.remove(`hidden`);
+  document.querySelector(`body`).classList.add(`modal-open`);
+  document.addEventListener(`keydown`, onPopupEscPress);
+};
+
+const closeEditPopup = () => {
+  editForm.classList.add(`hidden`);
+  document.querySelector(`body`).classList.remove(`modal-open`);
+  document.removeEventListener(`keydown`, onPopupEscPress);
+  uploadButton.value = ``;
+};
+
+uploadButton.addEventListener(`change`, function () {
+  openEditPopup();
+});
+
+closeEditing.addEventListener(`click`, function () {
+  closeEditPopup();
+});
+
+// zoom-in / zoom-out
+const zoomInButton = document.querySelector(`.scale__control--bigger`);
+const zoomOutButton = document.querySelector(`.scale__control--smaller`);
+const zoomInput = document.querySelector(`.scale__control--value`);
+const imgUploadPreview = document.querySelector(`.img-upload__preview img`);
+
+let zoomValue = parseFloat(zoomInput.value);
+imgUploadPreview.style.transform = `scale( ${zoomValue * 0.01})`;
+
+zoomInButton.addEventListener(`click`, function () {
+  zoomValue = zoomValue + 25;
+  if (zoomValue > 100) {
+    zoomValue = 100;
+  }
+  zoomInput.value = zoomValue + `%`;
+  imgUploadPreview.style.transform = `scale( ${zoomValue * 0.01})`;
+});
+
+zoomOutButton.addEventListener(`click`, function () {
+  zoomValue = zoomValue - 25;
+  if (zoomValue < 25) {
+    zoomValue = 25;
+  }
+  zoomInput.value = zoomValue + `%`;
+  imgUploadPreview.style.transform = `scale( ${zoomValue * 0.01})`;
+});
+
+// effects
+const effects = document.querySelectorAll(`.effects__item input[type='radio']`);
+const effectSlider = document.querySelector(`.img-upload__effect-level`);
+const effectLevelLine = effectSlider.querySelector(`.effect-level__line`);
+const effectLevelValue = effectSlider.querySelector(`.effect-level__value`);
+const effectSliderPin = effectSlider.querySelector(`.effect-level__pin`);
+effectSlider.classList.add(`hidden`);
+let filterValue;
+
+
+for (let i = 0; i < effects.length; i++) {
+  effects[i].addEventListener(`click`, function () {
+    effectSlider.classList.remove(`hidden`);
+
+    imgUploadPreview.className = ``;
+    imgUploadPreview.style.filter = ``;
+
+    if (effects[i].value !== `none`) {
+      imgUploadPreview.classList.add(`effects__preview--${effects[i].value}`);
+      changeEffect(`${effects[i].value}`);
+    } else {
+      imgUploadPreview.className = ``;
+      effectSlider.classList.add(`hidden`);
+    }
+
+
+    // switch (effects[i].id) {
+    //   case `effect-chrome`:
+    //     changeEffect(`chrome`);
+    //     break;
+    //   case `effect-sepia`:
+    //     changeEffect(`sepia`);
+    //     break;
+    //   case `effect-marvin`:
+    //     changeEffect(`marvin`);
+    //     break;
+    //   case `effect-phobos`:
+    //     changeEffect(`phobos`);
+    //     break;
+    //   case `effect-heat`:
+    //     changeEffect(`heat`);
+    //     break;
+    //   default:
+    //     imgUploadPreview.className = ``;
+    //     effectSlider.classList.add(`hidden`);
+    // }
+
+
+  });
+}
+
+//
+const getSliderLevel = (lineWidth, leftWidth) => {
+  const sliderLevel = ((leftWidth * 100) / lineWidth) / 100;
+
+  return sliderLevel.toFixed(2);
+};
+
+const doEffect = (effect, filterPosition) => {
+
+  switch (effect) {
+    case `chrome`:
+      imgUploadPreview.style.filter = `grayscale(${filterPosition})`;
+      break;
+    case `sepia`:
+      imgUploadPreview.style.filter = `sepia(${filterPosition})`;
+      break;
+    case `marvin`:
+      filterPosition = `${filterPosition * 100}%`;
+      imgUploadPreview.style.filter = `invert(${filterPosition})`;
+      break;
+    case `phobos`:
+      filterPosition = `${Math.round(filterPosition * 3)}px`;
+      imgUploadPreview.style.filter = `blur(${filterPosition})`;
+      break;
+    case `heat`:
+      filterPosition = (filterPosition * 3).toFixed(1);
+      imgUploadPreview.style.filter = `brightness(${filterPosition})`;
+      break;
+  }
+};
+
+const changeEffect = (effectName) => {
+  effectSliderPin.addEventListener(`mouseup`, function (evt) {
+    const leftPos = evt.target.offsetLeft;
+    filterValue = getSliderLevel(effectLevelLine.offsetWidth, leftPos);
+    effectLevelValue.value = filterValue;
+    doEffect(effectName, filterValue);
+  });
+};
