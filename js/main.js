@@ -144,7 +144,19 @@ fillBigPicture(feed[0]);
 const uploadButton = document.querySelector(`#upload-file`);
 const closeEditing = document.querySelector(`#upload-cancel`);
 const editForm = document.querySelector(`.img-upload__overlay`);
-
+const hashtagInput = document.querySelector(`.text__hashtags`);
+const sendButton = document.querySelector(`.img-upload__submit`);
+const HASHTAG_TEMPLATE = /^#[A-Za-z\d]*$/;
+const HASHTAGS_QTY = 5;
+const zoomInButton = document.querySelector(`.scale__control--bigger`);
+const zoomOutButton = document.querySelector(`.scale__control--smaller`);
+const zoomInput = document.querySelector(`.scale__control--value`);
+const imgUploadPreview = document.querySelector(`.img-upload__preview img`);
+const effects = document.querySelectorAll(`.effects__item input[type='radio']`);
+const effectSlider = document.querySelector(`.img-upload__effect-level`);
+const effectLevelLine = effectSlider.querySelector(`.effect-level__line`);
+const effectLevelValue = effectSlider.querySelector(`.effect-level__value`);
+const effectSliderPin = effectSlider.querySelector(`.effect-level__pin`);
 
 const onPopupEscPress = (evt) => {
   if (evt.key === `Escape`) {
@@ -174,11 +186,14 @@ closeEditing.addEventListener(`click`, function () {
   closeEditPopup();
 });
 
+hashtagInput.addEventListener(`focus`, function () {
+  document.removeEventListener(`keydown`, onPopupEscPress);
+});
+hashtagInput.addEventListener(`blur`, function () {
+  document.addEventListener(`keydown`, onPopupEscPress);
+});
+
 // zoom-in / zoom-out
-const zoomInButton = document.querySelector(`.scale__control--bigger`);
-const zoomOutButton = document.querySelector(`.scale__control--smaller`);
-const zoomInput = document.querySelector(`.scale__control--value`);
-const imgUploadPreview = document.querySelector(`.img-upload__preview img`);
 
 let zoomValue = parseFloat(zoomInput.value);
 imgUploadPreview.style.transform = `scale( ${zoomValue * 0.01})`;
@@ -202,11 +217,6 @@ zoomOutButton.addEventListener(`click`, function () {
 });
 
 // effects
-const effects = document.querySelectorAll(`.effects__item input[type='radio']`);
-const effectSlider = document.querySelector(`.img-upload__effect-level`);
-const effectLevelLine = effectSlider.querySelector(`.effect-level__line`);
-const effectLevelValue = effectSlider.querySelector(`.effect-level__value`);
-const effectSliderPin = effectSlider.querySelector(`.effect-level__pin`);
 effectSlider.classList.add(`hidden`);
 let filterValue;
 
@@ -270,10 +280,7 @@ const changeEffect = (effectName) => {
 
 // Hashtags
 let hashtags = [];
-const hashtagInput = document.querySelector(`.text__hashtags`);
-const sendButton = document.querySelector(`.img-upload__submit`);
-const HASHTAG_TEMPLATE = /^#[A-Za-z\d]*$/;
-const HASHTAGS_QTY = 5;
+
 
 const collectHashtags = (elem) => {
   hashtags = elem.value.trim().toLowerCase().split(` `);
@@ -281,51 +288,47 @@ const collectHashtags = (elem) => {
   return hashtags;
 };
 
+const validateHashtags = (hashtagsArray) => {
+  if (hashtagsArray.length > HASHTAGS_QTY) {
+    hashtagInput.setCustomValidity(`нельзя указать больше пяти хэш-тегов`);
+    hashtagInput.reportValidity();
+    hashtagsArray = hashtagsArray.slice(0, HASHTAGS_QTY);
+  }
+
+  for (let i = 0; i < hashtagsArray.length; i++) {
+
+    let findEqualElems = (array) => {
+      array = array.filter(function (elem, pos, arr) {
+        return pos !== arr.indexOf(elem) || pos !== arr.lastIndexOf(elem);
+      });
+
+      return array;
+    };
+
+    if (!HASHTAG_TEMPLATE.test(hashtagsArray[i])) {
+      hashtagInput.setCustomValidity(`строка после решётки должна состоять из букв и чисел и не может содержать пробелы, спецсимволы (#, @, $ и т. п.), символы пунктуации (тире, дефис, запятая и т. п.), эмодзи и т. д.`);
+    } else if (hashtagsArray[i].length > 20) {
+      hashtagInput.setCustomValidity(`максимальная длина одного хэш-тега 20 символов, включая решётку`);
+    } else if (hashtagsArray[i].length === 1 && hashtagsArray[i] === `#`) {
+      hashtagInput.setCustomValidity(`хеш-тег не может состоять только из одной решётки`);
+    } else if (findEqualElems(hashtagsArray).length > 1) {
+      hashtagInput.setCustomValidity(`один и тот же хэш-тег не может быть использован дважды`);
+    } else {
+      hashtagInput.setCustomValidity(``);
+    }
+    hashtagInput.reportValidity();
+  }
+};
+
 hashtagInput.addEventListener(`input`, function (evt) {
   evt.preventDefault();
 
-  collectHashtags(evt.target);
-
-  let newHashtags;
-
-  if (hashtags.length > HASHTAGS_QTY) {
-    console.log(`нельзя указать больше пяти хэш-тегов`);
-    newHashtags = hashtags.slice(0, HASHTAGS_QTY);
-  }
-
-
-  console.log(newHashtags);
-
-  for (let i = 0; i < newHashtags.length; i++) {
-
-    console.log(newHashtags[i], newHashtags[i].length);
-
-    if (!HASHTAG_TEMPLATE.test(newHashtags[i])) {
-      hashtagInput.setCustomVlidity(`строка после решётки должна состоять из букв и чисел и не может содержать пробелы, спецсимволы (#, @, $ и т. п.), символы пунктуации (тире, дефис, запятая и т. п.), эмодзи и т. д.`);
-    } else if (newHashtags[i].length > 20) {
-      hashtagInput.setCustomVlidity(`максимальная длина одного хэш-тега 20 символов, включая решётку`);
-    } else if (newHashtags[i].length === 1 && newHashtags[i] === `#`) {
-      hashtagInput.setCustomVlidity(`хеш-тег не может состоять только из одной решётки`);
-    } else if (newHashtags.indexOf(newHashtags[i])) {
-      console.log(`truuue`);
-    } else {
-      hashtagInput.setCustomVlidity(``);
-    }
-  }
-
-// hashtagInput.reportValidity();
-
-  console.log(newHashtags);
-
-
+  hashtags = collectHashtags(evt.target);
 });
 
-const validateHashtags = (hashtagsArray) => {
-
-};
 
 // validation after Upload button pressed
-sendButton.addEventListener(`click`, function () {
-  console.log(`send button pressed`);
+sendButton.addEventListener(`click`, function (evt) {
+  evt.preventDefault();
   validateHashtags(hashtags);
 });
